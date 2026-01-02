@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Ronin Configuration</title>
+</head>
+<body>
+    <div id="RoninConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+        <h2 class="sectionTitle" style="margin: 3em 1em 0 1em;">Ronin Configuration</h2>
+        <hr class="solid" style="margin: 0 1em 1.5em 1em;">
+        <div class="content-primary">
+            <form id="RoninConfigForm">
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input type="checkbox" id="ShowBadgesOnEpisodePage" is="emby-checkbox" class="emby-checkbox" data-id="ShowBadgesOnEpisodePage" />
+                        <span class="checkboxLabel">Show canon/filler badges on episode pages</span>
+                        <span class="checkboxOutline">
+                            <span class="material-icons checkboxIcon checkboxIcon-checked check" aria-hidden="true"></span>
+                            <span class="material-icons checkboxIcon checkboxIcon-unchecked " aria-hidden="true"></span>
+                        </span>
+                    </label>
+                    <div class="fieldDescription">Displays a visual tag (e.g. "Canon", "Filler", or "Mixed") on individual episode detail pages to clearly indicate episode classification.</div>
+                </div>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input type="checkbox" id="ShowBadgesOnSeasonList" is="emby-checkbox" class="emby-checkbox" data-id="ShowBadgesOnSeasonList" />
+                        <span class="checkboxLabel">Show canon/filler badges in season episode lists</span>
+                        <span class="checkboxOutline">
+                            <span class="material-icons checkboxIcon checkboxIcon-checked check" aria-hidden="true"></span>
+                            <span class="material-icons checkboxIcon checkboxIcon-unchecked " aria-hidden="true"></span>
+                        </span>
+                    </label>
+                    <div class="fieldDescription">Displays a visual tag (e.g. "Canon", "Filler", or "Mixed") next to each episode in season episode lists for quick identification.</div>
+                </div>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input type="checkbox" id="EnableBadgeColors" is="emby-checkbox" class="emby-checkbox" data-id="EnableBadgeColors" />
+                        <span class="checkboxLabel">Enable colored canon/filler badges</span>
+                        <span class="checkboxOutline">
+                            <span class="material-icons checkboxIcon checkboxIcon-checked check" aria-hidden="true"></span>
+                            <span class="material-icons checkboxIcon checkboxIcon-unchecked " aria-hidden="true"></span>
+                        </span>
+                    </label>
+                    <div class="fieldDescription">Applies color styling to canon and filler badges (for example, green for Canon and red for Filler) to improve visual recognition. Disabling this option will render all badges in a neutral gray.</div>
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="DbRateLimitMs">Databases API requests rate limit (milliseconds)</label>
+                    <label class="inputLabel inputLabel-float inputLabelUnfocused" for="DbRateLimitMs"></label>
+                    <input id="DbRateLimitMs" type="text" is="emby-input" class="emby-input" data-id="DbRateLimitMs" />
+                    <div class="fieldDescription">Specifies the minimum delay, in milliseconds, between external database API requests (AniDB, TheTVDB, etc.). A value of 2000 ms or higher is recommended to comply with rate limits and avoid temporary blocks.</div>
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="AnimeIdentificationMode">Anime identification mode</label>
+                    <select id="AnimeIdentificationMode" is="emby-input" class="emby-input" data-id="AnimeIdentificationMode">
+                        <option value="Genre">Genre only</option>
+                        <option value="Tag">Tag only</option>
+                        <option value="GenreOrTag">Genre OR Tag</option>
+                        <option value="GenreAndTag">Genre AND Tag</option>
+                    </select>
+                    <div class="fieldDescription">
+                        Defines how the plugin determines which series in your library are considered anime.
+                    </div>
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="AnimeTargetTag">Anime tag name</label>
+                    <input id="AnimeTargetTag" type="text" is="emby-input" class="emby-input" data-id="AnimeTargetTag" />
+                    <div class="fieldDescription">Tag name to match when identification mode includes "Tag". Default: Anime</div>
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input type="checkbox" id="RefreshSeriesAfterProcessed" is="emby-checkbox" class="emby-checkbox" data-id="RefreshSeriesAfterProcessed" />
+                        <span class="checkboxLabel">Refresh series metadata after processing</span>
+                        <span class="checkboxOutline">
+                            <span class="material-icons checkboxIcon checkboxIcon-checked check" aria-hidden="true"></span>
+                            <span class="material-icons checkboxIcon checkboxIcon-unchecked " aria-hidden="true"></span>
+                        </span>
+                    </label>
+                    <div class="fieldDescription">If enabled, the plugin will trigger a non-destructive metadata refresh on each modified series after merging or splitting seasons. This updates episode counts and UI organization immediately without requiring a manual library scan.</div>
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label class="emby-checkbox-label">
+                        <input type="checkbox" id="RenameWhenSingleSeason" is="emby-checkbox" class="emby-checkbox" data-id="RenameWhenSingleSeason" />
+                        <span class="checkboxLabel">Rename single season to custom name</span>
+                        <span class="checkboxOutline">
+                            <span class="material-icons checkboxIcon checkboxIcon-checked check" aria-hidden="true"></span>
+                            <span class="material-icons checkboxIcon checkboxIcon-unchecked " aria-hidden="true"></span>
+                        </span>
+                    </label>
+                    <div class="fieldDescription">If enabled, the plugin will rename the single season to a custom name (defined below) when merging all seasons into one.</div>
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="SingleSeasonName">Single Season Name</label>
+                    <input id="SingleSeasonName" type="text" is="emby-input" class="emby-input" data-id="SingleSeasonName" />
+                    <div class="fieldDescription">The name to use for the single season when merging all seasons into one. Default: Episodes</div>
+                </div>
+
+                <button id="saveConfig" is="emby-button" type="submit" class="emby-button raised button-submit block">
+                    <span>Save</span>
+                </button>
+            </form>
+        </div>
+        <script type="text/javascript">
+            const RoninConfig = {
+                pluginId: 'c6c0526b-5d62-4cee-9143-833bd43a4e78',
+
+                btnSave: document.querySelector("#saveConfig"),
+
+                updateStates: function () {
+                    const mode = document.querySelector("[data-id=AnimeIdentificationMode]").value;
+                    const tagInput = document.querySelector("[data-id=AnimeTargetTag]");
+                    tagInput.disabled = (mode === "Genre");
+                    tagInput.closest('.inputContainer').style.opacity = tagInput.disabled ? "0.5" : "1";
+
+                    const refreshChecked = document.querySelector("[data-id=RefreshSeriesAfterProcessed]").checked;
+                    const renameCheckbox = document.querySelector("[data-id=RenameWhenSingleSeason]");
+                    const singleSeasonNameInput = document.querySelector("[data-id=SingleSeasonName]");
+
+                    // Only active when RefreshSeriesAfterProcessed is checked
+                    renameCheckbox.disabled = !refreshChecked;
+                    renameCheckbox.closest('.checkboxContainer').style.opacity = renameCheckbox.disabled ? "0.5" : "1";
+
+                    // SingleSeasonName active only if both RefreshSeriesAfterProcessed and RenameWhenSingleSeason are checked
+                    const enableSingleSeasonName = refreshChecked && renameCheckbox.checked;
+                    singleSeasonNameInput.disabled = !enableSingleSeasonName;
+                    singleSeasonNameInput.closest('.inputContainer').style.opacity = singleSeasonNameInput.disabled ? "0.5" : "1";
+                },
+
+                loadConfig: function () {
+                    console.log('Loading Ronin configuration...');
+                    Dashboard.showLoadingMsg();
+                    window.ApiClient.getPluginConfiguration(RoninConfig.pluginId)
+                        .then(function (config) {
+                            document.querySelector("[data-id=ShowBadgesOnEpisodePage]").checked = config.ShowBadgesOnEpisodePage;
+                            document.querySelector("[data-id=ShowBadgesOnSeasonList]").checked = config.ShowBadgesOnSeasonList;
+                            document.querySelector("[data-id=EnableBadgeColors]").checked = config.EnableBadgeColors;
+                            document.querySelector("[data-id=DbRateLimitMs]").value =
+                                config?.DbRateLimitMs && config.DbRateLimitMs > 0
+                                    ? config.DbRateLimitMs
+                                    : 2000;
+                            document.querySelector("[data-id=AnimeIdentificationMode]").value = config.AnimeIdentificationMode;
+                            document.querySelector("[data-id=AnimeTargetTag]").value =
+                                config?.AnimeTargetTag && config.AnimeTargetTag.trim() !== "" 
+                                    ? config.AnimeTargetTag 
+                                    : 'Anime';
+                            document.querySelector("[data-id=RefreshSeriesAfterProcessed]").checked = config.RefreshSeriesAfterProcessed;
+                            document.querySelector("[data-id=RenameWhenSingleSeason]").checked = config.RenameWhenSingleSeason;
+                            document.querySelector("[data-id=SingleSeasonName]").value =
+                                config?.SingleSeasonName && config.SingleSeasonName.trim() !== ""
+                                    ? config.SingleSeasonName
+                                    : 'Episodes';
+                            RoninConfig.updateStates();
+                        })
+                        .catch(function (error) {
+                            console.error(error);
+                        })
+                        .finally(function () {
+                            Dashboard.hideLoadingMsg();
+                        });
+                },
+
+                saveConfig: function (e) {
+                    console.log('Saving Ronin configuration...');
+                    e.preventDefault();
+                    Dashboard.showLoadingMsg();
+                    const config = {
+                        ShowBadgesOnEpisodePage: document.querySelector("[data-id=ShowBadgesOnEpisodePage]").checked,
+                        ShowBadgesOnSeasonList: document.querySelector("[data-id=ShowBadgesOnSeasonList]").checked,
+                        EnableBadgeColors: document.querySelector("[data-id=EnableBadgeColors]").checked,
+                        DbRateLimitMs: parseInt(document.querySelector("[data-id=DbRateLimitMs]").value, 10),
+                        AnimeIdentificationMode: document.querySelector("[data-id=AnimeIdentificationMode]").value,
+                        AnimeTargetTag: document.querySelector("[data-id=AnimeTargetTag]").value,
+                        RefreshSeriesAfterProcessed: document.querySelector("[data-id=RefreshSeriesAfterProcessed]").checked,
+                        RenameWhenSingleSeason: document.querySelector("[data-id=RenameWhenSingleSeason]").checked,
+                        SingleSeasonName: document.querySelector("[data-id=SingleSeasonName]").value
+                    };
+                    window.ApiClient.updatePluginConfiguration(RoninConfig.pluginId, config)
+                    .then(Dashboard.processPluginConfigurationUpdateResult)
+                    .catch(function (error) {
+                        console.error(error);
+                    })
+                    .finally(function () {
+                        Dashboard.hideLoadingMsg();
+                    });
+                },
+
+                init: function () {
+                    console.log('Initializing Ronin configuration page...');
+                    RoninConfig.btnSave.addEventListener("click", RoninConfig.saveConfig);
+                    RoninConfig.loadConfig();
+
+                    document.querySelector("[data-id=AnimeIdentificationMode]").addEventListener("change", RoninConfig.updateStates);
+                    document.querySelector("[data-id=RefreshSeriesAfterProcessed]").addEventListener("change", RoninConfig.updateStates);
+                    document.querySelector("[data-id=RenameWhenSingleSeason]").addEventListener("change", RoninConfig.updateStates);
+                }
+            };
+
+            console.log('Setting up Ronin configuration page event listener...');
+            document.querySelector('#RoninConfigPage').addEventListener("pageshow", function () {
+                console.log('Ronin configuration page shown');
+                RoninConfig.init();
+            });
+        </script>
+    </div>
+</body>
+</html>

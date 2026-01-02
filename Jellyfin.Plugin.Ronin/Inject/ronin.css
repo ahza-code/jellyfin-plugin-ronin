@@ -1,0 +1,26 @@
+.anime-tag-badge {
+    padding: 0 .75em !important;
+    align-self: center !important;
+    max-width: 26%;
+    font-size: .75em;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: .25em;
+    color: #fff;
+    background-color: #6b6b6bb3;
+    text-shadow: .1em .1em .1em rgba(0,0,0,.8);
+}
+.anime-tag-badge.colored.filler {
+    background-color: #bb1414b3;
+}
+.anime-tag-badge.colored.mixed-canon-filler {
+    background-color: #d06c08b3;
+}
+.anime-tag-badge.colored.manga-canon {
+    background-color: #28a745b3;
+}
+.anime-tag-badge.colored.anime-canon {
+    background-color: #007bffb3;
+}

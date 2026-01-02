@@ -1,0 +1,21 @@
+[
+    {
+        "guid": "c6c0526b-5d62-4cee-9143-833bd43a4e78",
+        "name": "Ronin",
+        "overview": "An Anime toolkit for Jellyfin",
+        "description": "Enhances Anime handling in Jellyfin by automating season reorganization, tracking filler/canon episodes, and more.",
+        "owner": "ahza-code",
+        "category": "Anime",
+        "imageUrl": "",
+        "versions": [
+            {
+                "version": "1.0.0.0",
+                "changelog": "Initial release",
+                "targetAbi": "10.11.0.0",
+                "sourceUrl": "",
+                "checksum": "",
+                "timestamp": "2026-01-02 23:59:00"
+            }
+        ]
+    }
+]

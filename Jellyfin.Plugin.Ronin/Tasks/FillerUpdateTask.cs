@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -106,39 +108,17 @@ public class FillerUpdateTask : IScheduledTask
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var slug = show.GetProviderId("TvdbSlug");
-            if (string.IsNullOrEmpty(slug))
-            {
-                slug = GenerateSlug(show.Name);
-            }
-            var fillerUrl = $"https://www.animefillerlist.com/shows/{slug}";
+            var slugCandidates = BuildSlugCandidates(show);
 
-            Dictionary<int, string> fillerData;
-            try
-            {
-                var response = await httpClient.GetAsync(fillerUrl, cancellationToken).ConfigureAwait(false);
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning("Could not find filler list for {ShowName} at {Url}", show.Name, fillerUrl);
-                    seriesProcessed++;
-                    progress?.Report(seriesProcessed / seriesList.Count * 100);
-                    continue;
-                }
+            var fillerData = await TryGetFillerDataAsync(
+                httpClient,
+                slugCandidates,
+                cancellationToken
+            ).ConfigureAwait(false);
 
-                var html = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                fillerData = ParseHtml(html);
-                await Task.Delay(RequestDelayMs, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
+            if (fillerData == null || fillerData.Count == 0)
             {
-                _logger.LogError(ex, "Error fetching filler list for {ShowName}", show.Name);
-                seriesProcessed++;
-                progress?.Report(seriesProcessed / seriesList.Count * 100);
-                continue;
-            }
-
-            if (fillerData.Count == 0)
-            {
+                _logger.LogWarning("Could not find filler list for {ShowName} using slugs: {Slugs}", show.Name, string.Join(", ", slugCandidates));
                 seriesProcessed++;
                 progress?.Report(seriesProcessed / seriesList.Count * 100);
                 continue;
@@ -270,13 +250,122 @@ public class FillerUpdateTask : IScheduledTask
         ).ConfigureAwait(false);
     }
 
+    private static string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+
+        foreach (var c in normalized)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                sb.Append(c);
+        }
+
+        return sb.ToString().Normalize(NormalizationForm.FormC);
+    }
+
     private static string GenerateSlug(string title)
     {
-        string str = title.ToLowerInvariant();
-        str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
+        if (string.IsNullOrWhiteSpace(title))
+            return string.Empty;
+
+        var str = RemoveDiacritics(title)
+            .ToLowerInvariant();
+
+        // Replace punctuation with spaces (preserve word boundaries)
+        str = Regex.Replace(str, @"[^a-z0-9\s-]", " ");
+
+        // Collapse whitespace
         str = Regex.Replace(str, @"\s+", " ").Trim();
-        str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
-        str = Regex.Replace(str, @"\s", "-");
+
+        // Optional: remove common season words early
+        str = Regex.Replace(str, @"\b(season|part|cour)\b\s*\d*", "", RegexOptions.IgnoreCase);
+
+        // Convert spaces to hyphens
+        str = str.Replace(' ', '-');
+
         return str;
     }
+
+    private static string RemoveArticlesAndPrepositionsFromSlug(string slug)
+    {
+        if (string.IsNullOrWhiteSpace(slug))
+            return slug;
+
+        static bool IsStopWord(string word) => word switch
+        {
+            "a" or "an" or "the" => true,
+            "of" or "on" or "in" or "to" or "for" or "with" => true,
+            "and" => true,
+            _ => false
+        };
+
+        var parts = slug
+            .Split('-', StringSplitOptions.RemoveEmptyEntries)
+            .Where(p => !IsStopWord(p));
+
+        return string.Join("-", parts);
+    }
+
+    private static List<string> BuildSlugCandidates(BaseItem show)
+    {
+        var slugs = new List<string>();
+
+        var tvdbSlug = show.GetProviderId("TvdbSlug");
+        if (!string.IsNullOrWhiteSpace(tvdbSlug))
+        {
+            slugs.Add(tvdbSlug);
+
+            var strippedTvdb = RemoveArticlesAndPrepositionsFromSlug(tvdbSlug);
+            if (!string.Equals(tvdbSlug, strippedTvdb, StringComparison.Ordinal))
+                slugs.Add(strippedTvdb);
+        }
+
+        var generatedSlug = GenerateSlug(show.Name);
+        if (!string.IsNullOrWhiteSpace(generatedSlug))
+        {
+            slugs.Add(generatedSlug);
+
+            var strippedGenerated = RemoveArticlesAndPrepositionsFromSlug(generatedSlug);
+            if (!string.Equals(generatedSlug, strippedGenerated, StringComparison.Ordinal))
+                slugs.Add(strippedGenerated);
+        }
+
+        return slugs
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private async Task<Dictionary<int, string>?> TryGetFillerDataAsync(HttpClient httpClient, IReadOnlyList<string> slugCandidates, CancellationToken cancellationToken)
+    {
+        foreach (var slug in slugCandidates)
+        {
+            var url = $"https://www.animefillerlist.com/shows/{slug}";
+
+            try
+            {
+                var response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+                if (response.IsSuccessStatusCode)
+                {
+                    var html = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                    var fillerData = ParseHtml(html);
+                    if (fillerData.Count > 0) return fillerData;
+                }
+
+                await Task.Delay(RequestDelayMs, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error fetching filler list using slug {Slug}", slug);
+            }
+        }
+
+        return null;
+    }
+
 }
